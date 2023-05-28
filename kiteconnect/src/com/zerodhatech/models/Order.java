@@ -18,6 +18,8 @@ public class Order {
     public String validity;
     @SerializedName("tradingsymbol")
     public String tradingSymbol;
+    @SerializedName("instrument_token")
+    public String instrumentToken;
     @SerializedName("variety")
     public String orderVariety;
     @SerializedName("order_type")
