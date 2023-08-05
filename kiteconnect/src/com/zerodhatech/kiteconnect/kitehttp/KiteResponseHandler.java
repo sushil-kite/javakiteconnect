@@ -14,14 +14,15 @@ import java.io.IOException;
 public class KiteResponseHandler {
 
     public JSONObject handle(Response response, String body) throws IOException, KiteException, JSONException {
-        if (response.header("Content-Type").contains("json")) {
+        // added a check to handle empty response from the backend.
+        if (body.length() > 0 && response.header("Content-Type").contains("json")) {
             JSONObject jsonObject = new JSONObject(body);
             if(jsonObject.has("error_type")) {
                 throw dealWithException(jsonObject, response.code());
             }
             return jsonObject;
         } else {
-            throw new DataException("Unexpected content type received from server: "+ response.header("Content-Type")+" "+response.body().string(), 502);
+            throw new DataException("Unexpected content type received from server: "+ response.header("Content-Type")+" "+body, 502);
         }
     }
 
@@ -29,9 +30,9 @@ public class KiteResponseHandler {
         if (response.header("Content-Type").contains("csv")) {
             return body;
         } else if(response.header("Content-Type").contains("json")){
-            throw dealWithException(new JSONObject(response.body().string()), response.code());
+            throw dealWithException(new JSONObject(body), response.code());
         } else {
-            throw new DataException("Unexpected content type received from server: "+ response.header("Content-Type")+" "+response.body().string(), 502);
+            throw new DataException("Unexpected content type received from server: "+ response.header("Content-Type")+" "+body, 502);
         }
     }
 
