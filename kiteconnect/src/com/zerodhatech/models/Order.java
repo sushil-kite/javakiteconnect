@@ -42,6 +42,8 @@ public class Order {
     public String orderId;
     @SerializedName("pending_quantity")
     public String pendingQuantity;
+    @SerializedName("cancelled_quantity")
+    public String cancelledQuantity;
     @SerializedName("order_timestamp")
     public Date orderTimestamp;
     @SerializedName("exchange_timestamp")
@@ -195,6 +197,14 @@ public class Order {
 
     public void setPendingQuantity(String pendingQuantity) {
         this.pendingQuantity = pendingQuantity;
+    }
+
+    public String getCancelledQuantity() {
+        return cancelledQuantity;
+    }
+
+    public void setCancelledQuantity(String cancelledQuantity) {
+        this.cancelledQuantity = cancelledQuantity;
     }
 
     public Date getOrderTimestamp() {
