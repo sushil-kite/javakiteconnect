@@ -181,6 +181,47 @@ public class Examples {
         System.out.println(order11.orderId);
     }
 
+    /** Place order with automatic slicing on*/
+    public void placeAutoSliceOrder(KiteConnect kiteConnect) throws KiteException, IOException {
+        OrderParams orderParams = new OrderParams();
+        orderParams.price = 1.0;
+        orderParams.quantity = 5925;
+        orderParams.transactionType = Constants.TRANSACTION_TYPE_BUY;
+        orderParams.orderType = Constants.ORDER_TYPE_LIMIT;
+        orderParams.tradingsymbol = "NIFTY2543025800CE";
+        orderParams.exchange = Constants.EXCHANGE_NFO;
+        orderParams.validity = Constants.VALIDITY_DAY;
+        orderParams.product = Constants.PRODUCT_MIS;
+
+        List<BulkOrderResponse> orders = kiteConnect.placeAutoSliceOrder(orderParams, Constants.VARIETY_REGULAR);
+        for (BulkOrderResponse order : orders) {
+            if (order.orderId!=null) {
+                System.out.println(order.orderId);
+            } else {
+                System.out.println(order.bulkOrderError.code);
+                System.out.println(order.bulkOrderError.message);
+            }
+        }
+    }
+
+    public  void placeMarketProtectionOrder(KiteConnect kiteConnect) throws KiteException, IOException{
+        OrderParams orderParams = new OrderParams();
+        orderParams.price = 0.0;
+        orderParams.quantity = 1;
+        orderParams.transactionType = Constants.TRANSACTION_TYPE_BUY;
+        orderParams.orderType = Constants.ORDER_TYPE_MARKET;
+        orderParams.tradingsymbol = "INFY";
+        orderParams.exchange = Constants.EXCHANGE_NSE;
+        orderParams.validity = Constants.VALIDITY_DAY;
+        orderParams.product = Constants.PRODUCT_MIS;
+        // for custom market protection value send any value between 0 and 1 like 0.2 or 0.3
+        // -1 indicates kite backend will auto apply the market protection value.
+        orderParams.marketProtection = -1;
+
+        Order order11 = kiteConnect.placeOrder(orderParams, Constants.VARIETY_REGULAR);
+        System.out.println(order11.orderId);
+    }
+
     /** Get trigger range.*/
     public void getTriggerRange(KiteConnect kiteConnect) throws KiteException, IOException {
         // You need to send transaction_type, exchange and tradingsymbol to get trigger range.
@@ -401,6 +442,25 @@ public class Examples {
         // Get holdings returns holdings model which contains list of holdings.
         List<Holding> holdings = kiteConnect.getHoldings();
         System.out.println(holdings.size());
+        System.out.println(holdings.get(0).tradingSymbol);
+        System.out.println(holdings.get(0).dayChange);
+        System.out.println(holdings.get(0).dayChangePercentage);
+    }
+
+    /** Get MTF holdings.*/
+    public void getMTFHoldings(KiteConnect kiteConnect) throws KiteException, IOException {
+        // Get holdings returns holdings model which contains list of holdings.
+        List<Holding> holdings = kiteConnect.getHoldings();
+        List<Holding> mtfHoldings = new ArrayList<>();
+        for (Holding holding : holdings) {
+            if (holding.mtf.quantity > 0) {
+                mtfHoldings.add(holding);
+            }
+        }
+        System.out.println(mtfHoldings.size());
+        System.out.println(mtfHoldings.get(0).tradingSymbol);
+        System.out.println(mtfHoldings.get(0).mtf.quantity);
+        System.out.println(mtfHoldings.get(0).mtf.averagePrice);
     }
 
     /** Converts position*/
@@ -598,16 +658,15 @@ public class Examples {
             @Override
             public void onTicks(ArrayList<Tick> ticks) {
                 NumberFormat formatter = new DecimalFormat();
-                System.out.println("ticks size "+ticks.size());
+                System.out.println("ticks size " + ticks.size());
                 if(ticks.size() > 0) {
-                    System.out.println("last price "+ticks.get(0).getLastTradedPrice());
-                    System.out.println("open interest "+formatter.format(ticks.get(0).getOi()));
-                    System.out.println("day high OI "+formatter.format(ticks.get(0).getOpenInterestDayHigh()));
-                    System.out.println("day low OI "+formatter.format(ticks.get(0).getOpenInterestDayLow()));
-                    System.out.println("change "+formatter.format(ticks.get(0).getChange()));
-                    System.out.println("tick timestamp "+ticks.get(0).getTickTimestamp());
-                    System.out.println("tick timestamp date "+ticks.get(0).getTickTimestamp());
-                    System.out.println("last traded time "+ticks.get(0).getLastTradedTime());
+                    System.out.println("last price " + ticks.get(0).getLastTradedPrice());
+                    System.out.println("open interest " + formatter.format(ticks.get(0).getOi()));
+                    System.out.println("day high OI " + formatter.format(ticks.get(0).getOpenInterestDayHigh()));
+                    System.out.println("day low OI " + formatter.format(ticks.get(0).getOpenInterestDayLow()));
+                    System.out.println("change " + formatter.format(ticks.get(0).getChange()));
+                    System.out.println("tick timestamp " + ticks.get(0).getTickTimestamp());
+                    System.out.println("last traded time " + ticks.get(0).getLastTradedTime());
                     System.out.println(ticks.get(0).getMarketDepth().get("buy").size());
                 }
             }
